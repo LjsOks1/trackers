@@ -1,3 +1,2 @@
 roundup
-sqlite3
 gunicorn
