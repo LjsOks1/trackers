@@ -5,5 +5,5 @@ from roundup.cgi.wsgi_handler import RequestDispatcher
 tracker_home = 'tpm'
 application = RequestDispatcher(tracker_home)
 
-httpd = make_server('', 8080, application)
-httpd.serve_forever()
+#httpd = make_server('', 8080, application)
+#httpd.serve_forever()
