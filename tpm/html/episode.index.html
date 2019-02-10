@@ -1,0 +1,182 @@
+<tal:block metal:use-macro="templates/page/macros/icing">
+<title metal:fill-slot="head_title" >
+  <span tal:omit-tag="true" i18n:translate="" >List of episoded</span>
+  <span tal:condition="request/dispname"
+   tal:replace="python:' - %s '%request.dispname"
+  /> - <span tal:replace="config/TRACKER_NAME" />
+</title>
+<span metal:fill-slot="body_title" tal:omit-tag="true">
+  <span tal:omit-tag="true" i18n:translate="" >List of episodes</span>
+  <span tal:condition="request/dispname"
+   tal:replace="python:' - %s' % request.dispname" />
+</span>
+<td class="content" metal:fill-slot="content">
+
+<p tal:condition="python:not (context.is_view_ok()
+ or request.user.hasRole('Anonymous'))" i18n:translate="">
+ You are not allowed to view this page.</p>
+
+<p tal:condition="python:not context.is_view_ok()
+ and request.user.hasRole('Anonymous')" i18n:translate="">
+ Please login with your username and password.</p>
+
+<tal:block tal:define="batch request/batch" tal:condition="context/is_view_ok">
+ <table class="list">
+  <tr>
+   <th tal:condition="request/show/id" i18n:translate="">ID</th>
+   <th tal:condition="request/show/creation" i18n:translate="">Creation</th>
+   <th tal:condition="request/show/activity" i18n:translate="">Activity</th>
+   <th tal:condition="request/show/actor" i18n:translate="">Actor</th>
+   <th tal:condition="request/show/client" i18n:translate="">Client</th>
+   <th tal:condition="request/show/series" i18n:translate="">Series Title</th>
+   <th tal:condition="request/show/order" i18n:translate="">Episode Number</th>
+   <th tal:condition="request/show/title" i18n:translate="">Episode Title</th>
+   <th tal:condition="request/show/barcode" i18n:translate="">Barcode</th>
+   <th tal:condition="request/show/screenerid" i18n:translate="">Screener</th>
+   <th tal:condition="request/show/duration" i18n:translate="">Duration</th>
+   <th tal:condition="request/show/deadline" i18n:translate="">Deadline</th>
+   <th tal:condition="request/show/projects" i18n:translate="">Projects</th>
+   <th tal:condition="request/show/creator" i18n:translate="">Creator</th>
+   <th tal:condition="request/show/actions" i18n:translate="">Create</th>
+  </tr>
+ <tal:block tal:repeat="i batch" condition=true>
+  <tr tal:define="group python:[r[1] for r in request.group]"
+      tal:condition="python:group and batch.propchanged(*group)">
+   <th tal:attributes="colspan python:len(request.columns)" class="group">
+    <tal:block tal:repeat="g group">
+     <tal:block i18n:translate="" tal:content="python:str(i[g]) or '(no %s set)'%g"/>
+    </tal:block>
+   </th>
+  </tr>
+
+  <tr>
+   <td tal:condition="request/show/id" tal:content="i/id">&nbsp;</td>
+   <td class="date" tal:condition="request/show/creation"
+       tal:content="i/creation/reldate">&nbsp;</td>
+   <td class="date" tal:condition="request/show/activity"
+       tal:content="i/activity/reldate">&nbsp;</td>
+   <td class="date" tal:condition="request/show/actor"
+       tal:content="python:i.actor.plain() or default">&nbsp;</td>
+   <td tal:condition="request/show/client"
+       tal:content="python:i.series.client.plain() or i.client.plain()">&nbsp;</td>
+   <td tal:condition="request/show/series"
+       tal:content="python:i.series.plain() or default">&nbsp;</td>
+   <td tal:condition="request/show/order" tal:content="i/order">&nbsp;</td>
+   <td tal:condition="request/show/title">
+    <a tal:attributes="href string:episode${i/id}"
+		tal:content="python:str(i.series.title) + 'E' + str(i.order).zfill(2) + ' - ' + str(i.title.plain(hyperlink=0)) if i.series else str(i.title.plain(hyperlink=0))">title</a>
+   </td>
+   <td tal:condition="request/show/barcode" tal:content="i/barcode">&nbsp;</td>
+   <td tal:condition="request/show/screenerid" tal:content="i/screenerid">&nbsp;</td>
+   <td tal:condition="request/show/duration" tal:content="i/duration">&nbsp;</td>
+   <td class="date" tal:condition="request/show/deadline"
+       tal:content="i/deadline/pretty">&nbsp;</td>
+   <td tal:condition="request/show/projects" tal:define="projects python:[p for p in db.project.filter(filterspec={'episode':i.id})]">
+    <tal:block tal:repeat="p projects">
+       <a tal:content="python:p.language.plain()+':'+p.projecttype.plain() or default" tal:attributes="href string:project${p/id}">&nbsp;</a>;
+    </tal:block>
+   </td>
+   <td tal:condition="request/show/actions">
+       <a tal:attributes="href string:project?@template=item&episode=${i/id}">New Project</a>;
+   </td>
+
+
+   <td tal:condition="request/show/creator"
+       tal:content="python:i.creator.plain() or default">&nbsp;</td>
+  </tr>
+
+ </tal:block>
+
+ <metal:index define-macro="batch-footer">
+ <tr tal:condition="batch">
+  <th tal:attributes="colspan python:len(request.columns)">
+   <table width="100%">
+    <tr class="navigation">
+     <th>
+      <a tal:define="prev batch/previous" tal:condition="prev"
+         tal:attributes="href python:request.indexargs_url(request.classname,
+         {'@startwith':prev.first, '@pagesize':prev.size})"
+         i18n:translate="">&lt;&lt; previous</a>
+      &nbsp;
+     </th>
+     <th i18n:translate=""><span tal:replace="batch/start" i18n:name="start"
+     />..<span tal:replace="python: batch.start + batch.length -1" i18n:name="end"
+     /> out of <span tal:replace="batch/sequence_length" i18n:name="total"
+     /></th>
+     <th>
+      <a tal:define="next batch/next" tal:condition="next"
+         tal:attributes="href python:request.indexargs_url(request.classname,
+         {'@startwith':next.first, '@pagesize':next.size})"
+         i18n:translate="">next &gt;&gt;</a>
+      &nbsp;
+     </th>
+    </tr>
+   </table>
+  </th>
+ </tr>
+ </metal:index>
+</table>
+
+<a tal:attributes="href python:request.indexargs_url('issue',
+            {'@action':'export_csv'})" i18n:translate="">Download as CSV</a>
+
+<form method="GET" class="index-controls"
+    tal:attributes="action request/classname">
+
+ <table class="form" tal:define="n_sort python:2">
+  <tal:block tal:repeat="n python:range(n_sort)" tal:condition="batch">
+  <tr tal:define="key python:len(request.sort)>n and request.sort[n]">
+   <th>
+    <tal:block tal:condition="not:n" i18n:translate="">Sort on:</tal:block>
+   </th>
+   <td>
+    <select tal:attributes="name python:'@sort%d'%n">
+     <option value="" i18n:translate="">- nothing -</option>
+     <option tal:repeat="col context/properties"
+             tal:attributes="value col/_name;
+                             selected python:key and col._name == key[1]"
+             tal:content="col/_name"
+             i18n:translate="">column</option>
+    </select>
+   </td>
+   <th i18n:translate="">Descending:</th>
+   <td><input type="checkbox" tal:attributes="name python:'@sortdir%d'%n;
+              checked python:key and key[0] == '-'">
+   </td>
+  </tr>
+  </tal:block>
+  <tal:block tal:repeat="n python:range(n_sort)" tal:condition="batch">
+  <tr tal:define="key python:len(request.group)>n and request.group[n]">
+   <th>
+    <tal:block tal:condition="not:n" i18n:translate="">Group on:</tal:block>
+   </th>
+   <td>
+    <select tal:attributes="name python:'@group%d'%n">
+     <option value="" i18n:translate="">- nothing -</option>
+     <option tal:repeat="col context/properties"
+             tal:attributes="value col/_name;
+                             selected python:key and col._name == key[1]"
+             tal:content="col/_name"
+             i18n:translate="">column</option>
+    </select>
+   </td>
+   <th i18n:translate="">Descending:</th>
+   <td><input type="checkbox" tal:attributes="name python:'@groupdir%d'%n;
+              checked python:key and key[0] == '-'">
+   </td>
+  </tr>
+  </tal:block>
+  <tr><td colspan="4">
+              <input type="submit" value="Redisplay" i18n:attributes="value">
+              <tal:block tal:replace="structure
+                python:request.indexargs_form(sort=0, group=0)" />
+  </td></tr>
+ </table>
+</form>
+
+</tal:block>
+
+</td>
+</tal:block><tal:comment condition=false> vim: sw=1 ts=8 et si
+</tal:comment>
+<!-- SHA: 58c6e2d0178c2e56fd9f82c1541eff9bb76963bf -->
