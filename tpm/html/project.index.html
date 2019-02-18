@@ -1,12 +1,12 @@
 <tal:block metal:use-macro="templates/page/macros/icing">
 <title metal:fill-slot="head_title" >
-  <span tal:omit-tag="true" i18n:translate="" >List of tasks</span>
+  <span tal:omit-tag="true" i18n:translate="" >List of projects</span>
   <span tal:condition="request/dispname"
    tal:replace="python:' - %s '%request.dispname"
   /> - <span tal:replace="config/TRACKER_NAME" />
 </title>
 <span metal:fill-slot="body_title" tal:omit-tag="true">
-  <span tal:omit-tag="true" i18n:translate="" >List of tasks</span>
+  <span tal:omit-tag="true" i18n:translate="" >List of projects</span>
   <span tal:condition="request/dispname"
    tal:replace="python:' - %s' % request.dispname" />
 </span>
@@ -24,13 +24,17 @@
  <table class="list">
   <tr>
    <th tal:condition="request/show/id" i18n:translate="">ID</th>
+   <th tal:condition="request/show/client" i18n:translate="">Client</th>
+   <th tal:condition="request/show/order" i18n:translate="">Order ID</th>
+   <th tal:condition="request/show/title" i18n:translate="">Episode title</th>
    <th tal:condition="request/show/supplier" i18n:translate="">Supplier</th>
-   <th tal:condition="request/show/projecttype" i18n:translate="">Project type</th>
    <th tal:condition="request/show/language" i18n:translate="">Language</th>
-   <th tal:condition="request/show/tasktype" i18n:translate="">Task type</th>
-   <th tal:condition="request/show/series" i18n:translate="">Series</th>
-   <th tal:condition="request/show/episode" i18n:translate="">Episode</th>
-   <th tal:condition="request/show/status" i18n:translate="">Task status</th>
+   <th tal:condition="request/show/projecttype" i18n:translate="">Project Type</th>
+   <th tal:condition="request/show/workflowname" i18n:translate="">Workflow</th>
+   <th tal:condition="request/show/status" i18n:translate="">Status</th>
+   <th tal:condition="request/show/actions" i18n:translate="">Actions</th>
+
+
   </tr>
  <tal:block tal:repeat="i batch" condition=true>
   <tr tal:define="group python:[r[1] for r in request.group]"
@@ -44,23 +48,30 @@
 
   <tr>
    <td tal:condition="request/show/id" >
-      <a tal:attributes="href string:issue${i/id}"
+      <a tal:attributes="href string:project${i/id}"
          tal:content="python:str(i.id)">ID</a>
    </td>
+   <td tal:condition="request/show/client"
+       tal:content="python:i.order.partner.plain() or default">&nbsp;</td>
+   <td tal:condition="request/show/order">
+     <a tal:attributes="href string:order${i/order/id}"
+        tal:content="python:i.order.orderid or default"></a>
+   </td>
+   <td tal:condition="request/show/title"
+       tal:content="python:i.episode.title or default">&nbsp;</td>
    <td tal:condition="request/show/supplier"
        tal:content="python:i.supplier.plain() or default">&nbsp;</td>
-   <td tal:condition="request/show/projecttype"
-       tal:content="python:i.project.projecttype.name or default">&nbsp;</td>
    <td tal:condition="request/show/language"
-       tal:content="python:i.project.language.name or default">&nbsp;</td>
-   <td tal:condition="request/show/tasktype"
-       tal:content="python:i.tasktype.name or default">&nbsp;</td>
-   <td tal:condition="request/show/series"
-       tal:content="python:i.project.episode.series.title.plain() or default">&nbsp;</td>
-   <td tal:condition="request/show/episode"
-       tal:content="python:i.project.episode.title if i.project.isset() else i.episode.title">&nbsp;</td>
+       tal:content="python:i.language.name or default">&nbsp;</td>
+   <td tal:condition="request/show/projecttype"
+       tal:content="python:i.projecttype.name or default">&nbsp;</td>
+   <td tal:condition="request/show/workflowname"
+       tal:content="python:i.workflowname.name or default">&nbsp;</td>
    <td tal:condition="request/show/status"
-       tal:content="python:i.status.plain() or default">&nbsp;</td>
+       tal:content="python:i.status or default">&nbsp;</td>
+   <td tal:condition="request/show/actions">
+     <a tal:attributes="href string:project${i/id}?status=in-progress&action=edit">Start project</a>
+   </td>
   </tr>
 
  </tal:block>
@@ -95,7 +106,7 @@
  </metal:index>
 </table>
 
-<a tal:attributes="href python:request.indexargs_url('issue',
+<a tal:attributes="href python:request.indexargs_url('project',
             {'@action':'export_csv'})" i18n:translate="">Download as CSV</a>
 
 <form method="GET" class="index-controls"
@@ -144,11 +155,13 @@
    </td>
   </tr>
   </tal:block>
-  <tr><td colspan="4">
-              <input type="submit" value="Redisplay" i18n:attributes="value">
-              <tal:block tal:replace="structure
-                python:request.indexargs_form(sort=0, group=0)" />
-  </td></tr>
+  <tr>
+    <td colspan="1">
+      <input type="submit" value="Redisplay" i18n:attributes="value">
+      <tal:block tal:replace="structure
+      python:request.indexargs_form(sort=0, group=0)" />
+    </td>
+  </tr>
  </table>
 </form>
 

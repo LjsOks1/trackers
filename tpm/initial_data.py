@@ -79,9 +79,17 @@ tasktype.create(name="Production",shortname="prod")
 tasktype.create(name="Quality Check",shortname="qc")
 tasktype.create(name="Deliver localized content",shortname="dlc")
 
-workflows=db.getclass("workflows")
-workflows.create(trg_type="1",trg_state='8',new_type='2')
-workflows.create(trg_type="2",trg_state='8',new_type='3',new_resp='1')
-workflows.create(trg_type="3",trg_state='8',new_type='4',new_resp='1')
+workflowname=db.getclass("workflowname")
+workflowname.create(name="Simple Subtitling",shortname="ss")
+
+workflow=db.getclass("workflow")
+workflow.create(workflowname="ss",trg_type="2",trg_state='8',new_type='3',new_resp='1')
+workflow.create(workflowname="ss",trg_type="3",trg_state='8',new_type='4',new_resp='1')
+
+filetype=db.getclass("filetype")
+filetype.create(name="script",shortname="script")
+filetype.create(name="lowres",shortname="lowres")
+
+
 # vim: set filetype=python sts=4 sw=4 et si
 #SHA: f52a98b31599aa459a82a7852175660cf9cdcd6b

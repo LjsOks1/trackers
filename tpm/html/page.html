@@ -156,10 +156,10 @@ status_notresolved string:-1,1,2,3,4,5,6,7;
    <span>
      <a href="#"
         tal:attributes="href python:request.indexargs_url('project', {
-       '@sort': '-activity',
-       '@group': 'priority',
-       '@filter': 'status',
-       '@columns': columns_showall,
+       '@sort': '',
+       '@group': '',
+       '@filter': '',
+       '@columns': 'id,client,order,title,supplier,language,projecttype,workflowname,status,actions',
        '@search_text': '',
        'status': status_notresolved,
        '@dispname': i18n.gettext('Show All'),

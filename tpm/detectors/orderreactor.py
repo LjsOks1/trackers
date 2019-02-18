@@ -22,7 +22,6 @@ def processorder(db, cl, nodeid, oldvalues):
                 content=db.file.get(new_file[0],'content')
                 csv_reader=csv.DictReader(content.splitlines()[1:])
                 for row in csv_reader:
-                    print(row)
                     if not db.episode.filter(None,{'title':row['Title']}):
                         episode_id=db.episode.create(title=row['Title'],
                                                     duration=int(float(row['Length'])),
@@ -31,6 +30,11 @@ def processorder(db, cl, nodeid, oldvalues):
                                                     deadline=date.Date(row['Deadline']),
                                                     client=cl.get(nodeid,'partner'))
                         logging.info('%s ... Episode%s created' % (row['Title'], episode_id))
+                        task_id=db.issue.create(supplier='TPM',
+                                                episode=episode_id,
+                                                tasktype='csf',
+                                                status='new')
+                        logging.info('Task%s created to collect source files' % (task_id))
                     else:
                         episode_id=db.episode.filter(None,{'title':row['Title']})
                         logging.info('%s ... Episode%s exists, creation skipped.' % (row['Title'], episode_id))
@@ -39,7 +43,6 @@ def processorder(db, cl, nodeid, oldvalues):
                                                 'projecttype':row['Category'],
                                                 'language':row['Language'] }):
                         project_id=db.project.create(episode=episode_id,
-                                                    supplier=cl.get(nodeid,'partner'),
                                                     projecttype=row['Category'],
                                                     language=row['Language'],
                                                     order=nodeid)

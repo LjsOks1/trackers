@@ -12,14 +12,14 @@
 </title>
 <tal:block metal:fill-slot="body_title">
  <span tal:condition="python: not (context.id or context.is_edit_ok())"
-  tal:omit-tag="python:1" i18n:translate="">New Project</span>
+  tal:omit-tag="python:1" i18n:translate="">New Episode</span>
  <span tal:condition="python: not context.id and context.is_edit_ok()"
-  tal:omit-tag="python:1" i18n:translate="">New Project Editing</span>
+  tal:omit-tag="python:1" i18n:translate="">New Episode Editing</span>
  <span tal:condition="python: context.id and not context.is_edit_ok()"
-  tal:omit-tag="python:1" i18n:translate="">Project<tal:x
+  tal:omit-tag="python:1" i18n:translate="">Episode<tal:x
   replace="context/id" i18n:name="id" /></span>
  <span tal:condition="python: context.id and context.is_edit_ok()"
-  tal:omit-tag="python:1" i18n:translate="">Project<tal:x
+  tal:omit-tag="python:1" i18n:translate="">Episode<tal:x
   replace="context/id" i18n:name="id" /> Editing</span>
 </tal:block>
 
@@ -34,67 +34,30 @@
  Please login with your username and password.</p>
 
 <div tal:condition="context/is_view_ok">
+  <form method="POST" onSubmit="return submit_once()"
+        enctype="multipart/form-data" tal:condition="context/is_view_ok"
+        tal:attributes="action context/designator">
 
-<form method="POST" name="itemSynopsis"
-      onSubmit="return submit_once()" enctype="multipart/form-data"
-      tal:attributes="action context/designator">
-
-<p class="classblock">
- <table class="classblock">
-  <tr>
-   <th>Client:</th> <td tal:content="context/order/partner"></td>
-   <th>Series:</th> <td tal:content="python:context.episode.series.title or default"> - </td>
-   <th>Episode:</th> <td tal:content="python: context.episode.order.plain() + '. '+ context.episode.title.plain()"></td>
-   <th>Duration:</th> <td tal:content="context/episode/duration"></td>
-  </tr>
- </table>
-
-<hr>
-<table class="form">
-<tr>
- <th i18n:translate="">Assigned To</th>
- <td tal:content="structure context/supplier/menu">client menu</td>
- <th i18n:translate="">Project type:</th>
- <td tal:content="structure python:context.projecttype.menu(additional=['name'])">project type0 menu</td>
- <th i18n:translate="">Language:</th>
- <td tal:content="structure python:context.language.menu(additional=['name'])">language menu</td>
-</tr>
-<tr>
- <th i18n:translate="">Workflow:</th>
- <td tal:content="structure python:context.workflowname.menu(additional=['name'])">workflow menu</td>
- <th i18n:translate="">Status:</th>
- <td tal:content="structure python:context.status.menu(additional=['name'])">workflow menu</td>
-</tr>
-
-<tr tal:condition="context/is_edit_ok">
- <th i18n:translate="">Change Note</th>
- <td colspan=3>
-  <textarea tal:content="request/form/@note/value | default"
-            name="@note" wrap="hard" rows="5" cols="80"></textarea>
- </td>
-</tr>
-
-<tr tal:condition="context/is_edit_ok">
- <th i18n:translate="">File</th>
- <td colspan=3><input type="file" name="@file" size="40"></td>
-</tr>
-
-<tr tal:condition="context/is_edit_ok">
- <td>
-  &nbsp;
   <input type="hidden" name="@template" value="item">
-  <input type="hidden" name="@required" value="">
-  <input type="hidden" name="episode" tal:attributes="value string:${context/episode/id}">
- </td>
- <td colspan=3>
-  <span tal:replace="structure context/submit">submit button</span>
-  <a tal:condition="context/id" tal:attributes="href context/copy_url"
-   i18n:translate="">Make a copy</a>
- </td>
-</tr>
 
-</table>
-</form>
+  <table class="form">
+
+  <tr tal:repeat="prop python:db[context._classname].properties()">
+   <tal:block tal:condition="python:prop._name not in ('id',
+     'creator', 'creation', 'actor', 'activity')">
+    <th tal:content="prop/_name"></th>
+    <td tal:content="structure python:context[prop._name].field()"></td>
+   </tal:block>
+  </tr>
+  <tr>
+   <td>&nbsp;</td>
+   <td colspan=3 tal:content="structure context/submit">
+    submit button will go here
+   </td>
+  </tr>
+  </table>
+
+  </form>
 
 <tal:block tal:condition="not:context/id" i18n:translate="">
 <table class="form">
@@ -113,42 +76,11 @@
  by <b tal:content="context/actor" i18n:name="actor" />.
 </p>
 
-<table class="files" tal:define="tasks python:[t for t in db.issue.filter(filterspec={'project':context.id})]" >
- <tr>
-   <th colspan="5" class="header" i18n:translate="">Tasks</th>
-   <td>
-   <form style="padding:0" tal:condition="context/is_edit_ok"
-          tal:attributes="action string:issue">
-     <input type="hidden" name="@template" value="item">
-     <input type="hidden" name="project" tal:attributes="value string:${context/id}">
-     <input type="submit" value="New"/>
-    </form>
-   </td>
- </tr>
- <tr>
-  <th i18n:translate="">ID</th>
-  <th i18n:translate="">Task Type</th>
-  <th i18n:translate="">Supplier</th>
-  <th i18n:translate="">AssignedTo</th>
-  <th i18n:translate="">Status</th>
- </tr>
- <tr tal:repeat="t tasks">
-  <td>
-   <a tal:attributes="href string:issue${t/id}" tal:content="python: 'Task'+t.id">Open</a>
-  </td>
-  <td tal:content="python: t.tasktype.name.plain()">type</td>
-  <td tal:content="python: t.supplier.name.plain()">type</td>
-  <td tal:content="python: t.assignedto.realname.plain()">type</td>
-  <td tal:content="python: t.status.name.plain()">type</td>
- </tr>
-</table>
-
-
-
 <table class="files" tal:condition="context/files">
  <tr><th colspan="5" class="header" i18n:translate="">Files</th></tr>
  <tr>
   <th i18n:translate="">File name</th>
+  <th i18n:translate="">File Type</th>
   <th i18n:translate="">Uploaded</th>
   <th i18n:translate="">Type</th>
   <th i18n:translate="">Edit</th>
@@ -158,6 +90,9 @@
   <td>
    <a tal:attributes="href file/download_url"
       tal:content="file/name">dld link</a>
+  </td>
+  <td>
+    <span tal:content="file/filetype">creator's name</span>
   </td>
   <td>
    <span tal:content="file/creator">creator's name</span>,

@@ -35,17 +35,32 @@
 
 <div tal:condition="context/is_view_ok">
   <table class="classblock">
-   <tr>
-    <th>Client:</th> <td tal:content="context/project/episode/series/client"></td>
-    <th>Series:</th> <td tal:content="context/project/episode/series/title"></td>
-    <th>Episode:</th> <td tal:content="python: context.project.episode.order.plain() + '. '+ context.project.episode.title.plain()"></td>
-    <th>Duration:</th> <td tal:content="context/project/episode/duration"></td>
-   </tr>
-   <tr>
-     <th>Type:</th> <td tal:content="context/project/projecttype/name"></td>
-     <th>Language:</th> <td tal:content="context/project/language/name"></td>
-     <th>Supplier:</th> <td tal:content="context/project/supplier"></td>
-   </tr>
+    <div tal:condition="python:context.episode.isset()">
+      <tr>
+        <th>Client:</th> <td tal:content="context/episode/client"></td>
+        <th>Series:</th> <td tal:content="python:context.episode.series.title or default"> - </td>
+        <th>Episode:</th> <td tal:content="python: context.episode.title.plain() "></td>
+        <th>Duration:</th> <td tal:content="python: context.episode.duration.plain() + ' minutes'"></td>
+      </tr>
+      <tr>
+        <th>Barcode:</th> <td tal:content="context/episode/barcode"></td>
+        <th>ScreenerID:</th> <td tal:content="context/episode/screenerid"></td>
+        <th>Deadline:</th> <td tal:content="context/episode/deadline"></td>
+      </tr>
+      <tr>
+        <th>Tasktype:</th> <td tal:content="context/tasktype/name"></td>
+        <th>Supplier:</th> <td tal:content="context/supplier"></td>
+      </tr>
+    </div>
+    <div tal:condition="python:context.project.isset()">
+      <tr>
+        <th>Client:</th> <td tal:content="context/project/client"></td>
+        <th>Series:</th> <td tal:content="context/project/episode/series/title"></td>
+        <th>Episode:</th> <td tal:content="python: context.project.episode.title.plain() or context.episode.title"></td>
+        <th>Duration:</th> <td tal:content="context/project/episode/duration"></td>
+      </tr>
+    </div>
+
   </table>
 
  <hr>
@@ -55,12 +70,6 @@
       tal:attributes="action context/designator">
 
 <table class="form">
-<tr>
- <th class="required" i18n:translate="">Task type:</th>
- <td tal:content="structure python:context.tasktype.menu(additional=['name'])">tasktype</td>
- <th class="required" i18n:translate="">Supplier:</th>
- <td tal:content="structure context/supplier/menu">supplier</td>
-</tr>
 
 <tr>
  <th class="required" i18n:translate="">Priority</th>
@@ -108,23 +117,27 @@ python:db.user.classhelp('username,realname,address', property='nosy', width='60
 </tr>
 
 <tr tal:condition="context/is_edit_ok">
- <th i18n:translate="">File</th>
- <td colspan=3><input type="file" name="@file" size="40"></td>
+ <th i18n:translate="">File:</th>
+ <td ><input type="file" name="@file" size="40"></td>
+ <th i18n:translate="">File Type:</th>
+   <td><select name="file-1@filetype">
+    <option selected="selected" value="-1">- no selection -</option>
+    <tal:block tal:repeat="ft db/filetype/list">
+       <option tal:attributes="value ft/shortname" tal:content="ft/name"></option>
+    </tal:block>
+   </select> </td>
 </tr>
 
 <tr tal:condition="context/is_edit_ok">
  <td>
   &nbsp;
   <input type="hidden" name="@template" value="item">
-  <input type="hidden" name="@required" value="tasktype,project">
-  <input type="hidden" name="project" tal:attributes="value string:${context/project/id}">
+  <input type="hidden" name="@required" value="">
  </td>
  <td colspan=3>
   <span tal:replace="structure context/submit">submit button</span>
   <a tal:condition="context/id" tal:attributes="href context/copy_url"
    i18n:translate="">Make a copy</a>
-   <a tal:condition="context/id" tal:attributes="href string:project${context/project/id}"
-    i18n:translate="">Back to project...</a>
  </td>
 </tr>
 
@@ -152,6 +165,7 @@ python:db.user.classhelp('username,realname,address', property='nosy', width='60
  <tr><th colspan="5" class="header" i18n:translate="">Files</th></tr>
  <tr>
   <th i18n:translate="">File name</th>
+  <th i18n:translate="">File Type</th>
   <th i18n:translate="">Uploaded</th>
   <th i18n:translate="">Type</th>
   <th i18n:translate="">Edit</th>
@@ -161,6 +175,9 @@ python:db.user.classhelp('username,realname,address', property='nosy', width='60
   <td>
    <a tal:attributes="href file/download_url"
       tal:content="file/name">dld link</a>
+  </td>
+  <td>
+    <span tal:content="file/filetype">creator's name</span>
   </td>
   <td>
    <span tal:content="file/creator">creator's name</span>,

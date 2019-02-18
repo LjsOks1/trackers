@@ -85,9 +85,11 @@ tasktype.setkey("shortname")
 
 issue = IssueClass(db, "issue",
                 assignedto=Link("user"),
+                partner=Link("partner"),
                 keyword=Multilink("keyword"),
                 priority=Link("priority"),
                 status=Link("status"),
+                episode=Link("episode"),
                 project=Link("project"),
                 tasktype=Link("tasktype"),
                 supplier=Link("partner"))
@@ -135,16 +137,23 @@ projecttype=Class(db,"projecttype",
                   shortname=String())
 projecttype.setkey("shortname")
 
+workflowname=Class(db,"workflowname",
+                    name=String(),
+                    shortname=String())
+workflowname.setkey("shortname")
+
 project = IssueClass(db,"project",
                     order=Link("order"),
                     episode=Link("episode"),
                     language=Link("language"),
                     supplier=Link("partner"),
                     status=Link("status"),
-                    projecttype=Link("projecttype"))
+                    projecttype=Link("projecttype"),
+                    workflowname=Link("workflowname"))
 
 
-workflows=Class(db,"workflows",
+workflow=Class(db,"workflow",
+                workflowname=Link("workflowname"),
                 trg_type=String(),
                 trg_state=String(),
                 new_type=String(),
