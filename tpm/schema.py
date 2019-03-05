@@ -154,10 +154,10 @@ project = IssueClass(db,"project",
 
 workflow=Class(db,"workflow",
                 workflowname=Link("workflowname"),
-                trg_type=String(),
-                trg_state=String(),
-                new_type=String(),
-                new_resp=String())
+                trg_type=Link("tasktype"),
+                trg_state=Link("status"),
+                new_type=Link("tasktype"),
+                new_resp=Link("partner"))
 #
 # TRACKER SECURITY SETTINGS
 #

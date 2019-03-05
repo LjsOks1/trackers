@@ -54,7 +54,7 @@
     </div>
     <div tal:condition="python:context.project.isset()">
       <tr>
-        <th>Client:</th> <td tal:content="context/project/client"></td>
+        <th>Client:</th> <td tal:content="context/project/order/partner"></td>
         <th>Series:</th> <td tal:content="context/project/episode/series/title"></td>
         <th>Episode:</th> <td tal:content="python: context.project.episode.title.plain() or context.episode.title"></td>
         <th>Duration:</th> <td tal:content="context/project/episode/duration"></td>
@@ -177,7 +177,7 @@ python:db.user.classhelp('username,realname,address', property='nosy', width='60
       tal:content="file/name">dld link</a>
   </td>
   <td>
-    <span tal:content="file/filetype">creator's name</span>
+    <span tal:content="file/filetype">Type of file</span>
   </td>
   <td>
    <span tal:content="file/creator">creator's name</span>,

@@ -1,12 +1,12 @@
 <tal:block metal:use-macro="templates/page/macros/icing">
 <title metal:fill-slot="head_title" >
-  <span tal:omit-tag="true" i18n:translate="" >List of projects</span>
+  <span tal:omit-tag="true" i18n:translate="" >List of Workflowss</span>
   <span tal:condition="request/dispname"
    tal:replace="python:' - %s '%request.dispname"
   /> - <span tal:replace="config/TRACKER_NAME" />
 </title>
 <span metal:fill-slot="body_title" tal:omit-tag="true">
-  <span tal:omit-tag="true" i18n:translate="" >List of projects</span>
+  <span tal:omit-tag="true" i18n:translate="" >List of Workflowss</span>
   <span tal:condition="request/dispname"
    tal:replace="python:' - %s' % request.dispname" />
 </span>
@@ -21,20 +21,15 @@
  Please login with your username and password.</p>
 
 <tal:block tal:define="batch request/batch" tal:condition="context/is_view_ok">
- <table class="list">
+<form method="POST" tal:attributes="action request/classname">
+<table class="list">
   <tr>
-   <th tal:condition="request/show/id" i18n:translate="">ID</th>
-   <th tal:condition="request/show/client" i18n:translate="">Client</th>
-   <th tal:condition="request/show/order" i18n:translate="">Order ID</th>
-   <th tal:condition="request/show/title" i18n:translate="">Episode title</th>
-   <th tal:condition="request/show/supplier" i18n:translate="">Supplier</th>
-   <th tal:condition="request/show/language" i18n:translate="">Language</th>
-   <th tal:condition="request/show/projecttype" i18n:translate="">Project Type</th>
+   <th tal:condition="request/show/retire" i18n:translate="">Retire</th>
    <th tal:condition="request/show/workflowname" i18n:translate="">Workflow</th>
-   <th tal:condition="request/show/status" i18n:translate="">Status</th>
-   <th tal:condition="request/show/actions" i18n:translate="">Actions</th>
-
-
+   <th tal:condition="request/show/trg_type" i18n:translate="">Triggering Task Type</th>
+   <th tal:condition="request/show/trg_state" i18n:translate="">Triggering Task Status</th>
+   <th tal:condition="request/show/new_type" i18n:translate="">New Task Type</th>
+   <th tal:condition="request/show/new_resp" i18n:translate="">New Task Partner</th>
   </tr>
  <tal:block tal:repeat="i batch" condition=true>
   <tr tal:define="group python:[r[1] for r in request.group]"
@@ -47,40 +42,53 @@
   </tr>
 
   <tr>
-   <td tal:condition="request/show/id" >
-      <a tal:attributes="href string:project${i/id}"
-         tal:content="python:str(i.id)">ID</a>
+  <td tal:condition="request/show/retire">
+    <form style="padding:0" method="POST"
+          tal:attributes="action string:workflow${i/id};id string:workflow${i/id}">
+     <input type="hidden" name="@template" value="index" tal:attributes="form string:workflow${i/id}">
+     <input name="@csrf" type="hidden" tal:attributes="value python:utils.anti_csrf_nonce(); form string:workflow${i/id}">
+     <input type="hidden" name="@action" value="retire" tal:attributes="form string:workflow${i/id}">
+     <input type="submit" value="retire" i18n:attributes="value" tal:attributes="form string:workflow${i/id}">
+     <tal:block replace="structure request/indexargs_form" />
+    </form>
    </td>
-   <td tal:condition="request/show/client"
-       tal:content="python:i.order.partner.plain() or default">&nbsp;</td>
-   <td tal:condition="request/show/order">
-     <a tal:attributes="href string:order${i/order/id}"
-        tal:content="python:i.order.orderid or default"></a>
-   </td>
-   <td tal:condition="request/show/title"
-       tal:content="python:i.episode.title or default">&nbsp;</td>
-   <td tal:condition="request/show/supplier"
-       tal:content="structure python:i.supplier.menu() or default">&nbsp;</td>
-   <td tal:condition="request/show/language"
-       tal:content="python:i.language.name or default">&nbsp;</td>
-   <td tal:condition="request/show/projecttype"
-       tal:content="python:i.projecttype.name or default">&nbsp;</td>
    <td tal:condition="request/show/workflowname"
        tal:content="structure python:i.workflowname.menu(additional=['name']) or default">&nbsp;</td>
-   <td tal:condition="request/show/status"
-       tal:content="python:i.status or default">&nbsp;</td>
-   <td tal:condition="request/show/actions">
-     <form style="padding:0" method="POST">
-      <input name="@csrf" type="hidden" tal:attributes="value python:utils.anti_csrf_nonce()">
-      <input type="hidden" name="@action" value="launchproject" >
-      <input type="hidden" name="projectid" tal:attributes="value i/id" >
-      <tal:block replace="structure request/indexargs_form" />
-      <input type="submit" value="Launch Project" i18n:attributes="value">
-     </form>
-   </td>
+   <td tal:condition="request/show/trg_type"
+       tal:content="structure python:i.trg_type.menu(additional=['name']) or default">&nbsp;</td>
+   <td tal:condition="request/show/trg_state"
+       tal:content="structure python:i.trg_state.menu(additional=['name']) or default">&nbsp;</td>
+   <td tal:condition="request/show/new_type"
+       tal:content="structure python:i.new_type.menu(additional=['name']) or default">&nbsp;</td>
+   <td tal:condition="request/show/new_resp"
+       tal:content="structure python:i.new_resp.menu() or default">&nbsp;</td>
+
   </tr>
 
  </tal:block>
+ <tr>
+  <td tal:attributes="colspan python:len(request.columns)">
+    <form style="padding:0" method="POST"  action=workflow id='new_workflow'>
+     <input type="hidden" name="@template" value="index" form='new_workflow'>
+     <input type="hidden" name="workflow-1@workflowname" value="1" form='new_workflow'>
+     <input name="@csrf" type="hidden" form='new_workflow' tal:attributes="value python:utils.anti_csrf_nonce()">
+     <input type="hidden" name="@action" value="new" form='new_workflow'>
+     <input type="hidden" name="__redirect_to" tal:attributes="value python:request.base+'workflow?@template=index'" form='new_workflow'>
+     <input type="submit" value="New" form='new_workflow'>
+    </form>
+
+  </td>
+ </tr>
+
+ <tr>
+ <td tal:attributes="colspan python:len(request.columns)">
+  <input name="@csrf" type="hidden"
+       tal:attributes="value python:utils.anti_csrf_nonce()">
+  <input type="submit" value=" Save Changes ">
+  <input type="hidden" name="@action" value="edit">
+  <tal:block replace="structure request/indexargs_form" />
+ </td>
+</tr>
 
  <metal:index define-macro="batch-footer">
  <tr tal:condition="batch">
@@ -111,8 +119,8 @@
  </tr>
  </metal:index>
 </table>
-
-<a tal:attributes="href python:request.indexargs_url('project',
+</form>
+<a tal:attributes="href python:request.indexargs_url('workflow',
             {'@action':'export_csv'})" i18n:translate="">Download as CSV</a>
 
 <form method="GET" class="index-controls"
@@ -166,6 +174,9 @@
       <input type="submit" value="Redisplay" i18n:attributes="value">
       <tal:block tal:replace="structure
       python:request.indexargs_form(sort=0, group=0)" />
+    </td>
+    <td colspan="1">
+      <input type="button" value="Create New" class="button_active" onclick="location.href='workflow?@template=item';" />
     </td>
   </tr>
  </table>

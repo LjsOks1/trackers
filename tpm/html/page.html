@@ -161,10 +161,23 @@ status_notresolved string:-1,1,2,3,4,5,6,7;
        '@filter': '',
        '@columns': 'id,client,order,title,supplier,language,projecttype,workflowname,status,actions',
        '@search_text': '',
-       'status': status_notresolved,
+       'status': '',
        '@dispname': i18n.gettext('Show All'),
       })"
         i18n:translate="">Projects</a><br>
+   </span>
+   <span>
+     <a href="#"
+        tal:attributes="href python:request.indexargs_url('workflow', {
+       '@sort': '',
+       '@group': '',
+       '@filter': '',
+       '@columns': 'retire,workflowname,trg_type,trg_state,new_type,new_resp',
+       '@search_text': '',
+       'status': status_notresolved,
+       '@dispname': i18n.gettext('Show All'),
+      })"
+        i18n:translate="">Workflows</a><br>
    </span>
    <span tal:condition="python:request.user.hasPermission('Edit', None)">
     <a href="home?@template=classlist" i18n:translate="">Class List</a><br>
