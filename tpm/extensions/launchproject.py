@@ -1,9 +1,9 @@
-from roundup.cgi.actions import Action
+from roundup.cgi.actions import Action, EditCommon
 from roundup.anypy import urllib_
 from roundup.cgi import exceptions, templating
+from roundup.exceptions import Reject, RejectRaw
 
-
-class LaunchProject(Action):
+class LaunchProject(EditCommon):
     def handle(self):
         ''' Perform some action. No return value is required.
         '''
@@ -16,8 +16,24 @@ class LaunchProject(Action):
             self.client.add_error_message(self._('Error: %s')
                 % str(message))
             return
-
-        print props,links
+        print props
+        print props[('project',self.form['projectid'].value)]['supplier']
+        try:
+            message = self._editnodes(props, links)
+        except (ValueError, KeyError, IndexError, Reject) as message:
+            escape = not isinstance(message, RejectRaw)
+            self.client.add_error_message(
+                self._('Edit Error: %s') % str(message), escape=escape)
+            return
+        self.db.project.set(self.form['projectid'].value,status='5') # Set project status to 'in-progress'
+        #insert task(s)
+        for task in self.db.workflow.filter(None,filterspec={'workflowname':'1', 'trg_type':None, 'trg_state':None}):
+            t=self.db.issue.create(project=self.form['projectid'].value,
+                                  tasktype=self.db.workflow.get(task,'new_type'),
+                                  status='new',
+                                  supplier=self.db.workflow.get(task,'new_resp') if self.db.workflow.get(task,'new_resp') else props[('project',self.form['projectid'].value)]['supplier'])
+        # commit now that all the tricky stuff is done
+        self.db.commit()
 
         # redirect to the item's edit page
         # redirect to finish off

@@ -48,16 +48,34 @@
         <th>Deadline:</th> <td tal:content="context/episode/deadline"></td>
       </tr>
       <tr>
-        <th>Tasktype:</th> <td tal:content="context/tasktype/name"></td>
-        <th>Supplier:</th> <td tal:content="context/supplier"></td>
+        <span tal:condition="python: context.id and context.is_edit_ok()"
+         tal:omit-tag="python:1" i18n:translate="">
+          <th>Tasktype:</th> <td tal:content="context/tasktype/name"></td>
+          <th>Supplier:</th> <td tal:content="context/supplier"></td>
+        </span>
       </tr>
     </div>
     <div tal:condition="python:context.project.isset()">
       <tr>
         <th>Client:</th> <td tal:content="context/project/order/partner"></td>
-        <th>Series:</th> <td tal:content="context/project/episode/series/title"></td>
-        <th>Episode:</th> <td tal:content="python: context.project.episode.title.plain() or context.episode.title"></td>
+        <th>Series:</th> <td tal:content="python: context.project.episode.series.title or default"> - </td>
+        <th>Episode:</th> <td tal:content="python: context.project.episode.title.plain()"></td>
         <th>Duration:</th> <td tal:content="context/project/episode/duration"></td>
+      </tr>
+      <tr>
+        <th>Barcode:</th> <td tal:content="context/project/episode/barcode"></td>
+        <th>ScreenerID:</th> <td tal:content="context/project/episode/screenerid"></td>
+        <th>Deadline:</th> <td tal:content="context/project/episode/deadline"></td>
+        <th>Project:</th><td>
+           <a tal:attributes="href string:project${context/project/id}"
+                   tal:content="python:'Project'+context.project.id">ID</a></td>
+      </tr>
+      <tr>
+        <span tal:condition="python: context.id and context.is_edit_ok()"
+         tal:omit-tag="python:1" i18n:translate="">
+          <th>Tasktype:</th> <td tal:content="context/tasktype/name"></td>
+          <th>Supplier:</th> <td tal:content="context/supplier"></td>
+        </span>
       </tr>
     </div>
 
@@ -70,6 +88,16 @@
       tal:attributes="action context/designator">
 
 <table class="form">
+
+  <span tal:condition="python: not context.id and context.is_edit_ok()"
+   tal:omit-tag="python:1" i18n:translate="">
+     <tr>
+      <th class="required" i18n:translate="">Tasktype</th>
+      <td tal:content="structure python:context.tasktype.menu(additional=['name'])">tasktype</td>
+      <th i18n:translate="">Supplier</th>
+      <td tal:content="structure context/supplier/menu">status</td>
+     </tr>
+   </span>
 
 <tr>
  <th class="required" i18n:translate="">Priority</th>
@@ -133,6 +161,7 @@ python:db.user.classhelp('username,realname,address', property='nosy', width='60
   &nbsp;
   <input type="hidden" name="@template" value="item">
   <input type="hidden" name="@required" value="">
+  <input tal:condition="python:context.project.isset()" type="hidden" name="project" tal:attributes="value context/project/id">
  </td>
  <td colspan=3>
   <span tal:replace="structure context/submit">submit button</span>

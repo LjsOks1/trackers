@@ -5,12 +5,13 @@ from cStringIO import StringIO
 import sys
 import traceback
 
-log_stream=StringIO()
-logging.basicConfig(stream=log_stream, level=logging.INFO)
+
 
 def processorder(db, cl, nodeid, oldvalues):
     ''' For now let's just process the order files received from HBO....
     '''
+    log_stream=StringIO()
+    logging.basicConfig(stream=log_stream, level=logging.INFO)
     if cl.get(nodeid,'files'):
         if oldvalues and oldvalues['files']:
             new_file= [x for x in cl.get(nodeid,'files') if x not in oldvalues['files']]
@@ -45,7 +46,8 @@ def processorder(db, cl, nodeid, oldvalues):
                         project_id=db.project.create(episode=episode_id,
                                                     projecttype=row['Category'],
                                                     language=row['Language'],
-                                                    order=nodeid)
+                                                    order=nodeid,
+                                                    status='new')
                         logging.info('%s ... Project%s created' % (row['Title'], project_id))
             except Exception as e:
                 logging.error(traceback.format_exc())
@@ -54,10 +56,12 @@ def processorder(db, cl, nodeid, oldvalues):
             msg['date']=date.Date('.')
             msg['author']=str(db.getuid())
             msg_id=db.msg.create(**msg)
+            log_stream.close()
             all_messages=[msg_id]
             if cl.get(nodeid,'messages'):
                 all_messages=all_messages+cl.get(nodeid,'messages')
             cl.set(nodeid,messages=all_messages)
+            db.commit()
 
 def init(db):
     # fire before changes are made

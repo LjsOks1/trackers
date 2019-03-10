@@ -47,37 +47,43 @@
   </tr>
 
   <tr>
-   <td tal:condition="request/show/id" >
-      <a tal:attributes="href string:project${i/id}"
-         tal:content="python:str(i.id)">ID</a>
-   </td>
-   <td tal:condition="request/show/client"
-       tal:content="python:i.order.partner.plain() or default">&nbsp;</td>
-   <td tal:condition="request/show/order">
-     <a tal:attributes="href string:order${i/order/id}"
-        tal:content="python:i.order.orderid or default"></a>
-   </td>
-   <td tal:condition="request/show/title"
-       tal:content="python:i.episode.title or default">&nbsp;</td>
-   <td tal:condition="request/show/supplier"
-       tal:content="structure python:i.supplier.menu() or default">&nbsp;</td>
-   <td tal:condition="request/show/language"
-       tal:content="python:i.language.name or default">&nbsp;</td>
-   <td tal:condition="request/show/projecttype"
-       tal:content="python:i.projecttype.name or default">&nbsp;</td>
-   <td tal:condition="request/show/workflowname"
-       tal:content="structure python:i.workflowname.menu(additional=['name']) or default">&nbsp;</td>
-   <td tal:condition="request/show/status"
-       tal:content="python:i.status or default">&nbsp;</td>
-   <td tal:condition="request/show/actions">
-     <form style="padding:0" method="POST">
+   <form style="padding:0" method="POST">
+     <td tal:condition="request/show/id" >
+        <a tal:attributes="href string:project${i/id}"
+           tal:content="python:str(i.id)">ID</a>
+     </td>
+     <td tal:condition="request/show/client"
+         tal:content="python:i.order.partner.plain() or default">&nbsp;</td>
+     <td tal:condition="request/show/order">
+       <a tal:attributes="href string:order${i/order/id}"
+          tal:content="python:i.order.orderid or default"></a>
+     </td>
+     <td tal:condition="request/show/title"
+         tal:content="python:i.episode.title or default">&nbsp;</td>
+     <td tal:condition="python: request.show['supplier'] and i.status.name=='new'"
+         tal:content="structure python:i.supplier.menu() or default">&nbsp;</td>
+     <td tal:condition="python: request.show['supplier'] and i.status.name!='new'"
+         tal:content="python:i.supplier or default">&nbsp;</td>
+     <td tal:condition="request/show/language"
+         tal:content="python:i.language.name or default">&nbsp;</td>
+     <td tal:condition="request/show/projecttype"
+         tal:content="python:i.projecttype.name or default">&nbsp;</td>
+     <td tal:condition="python:(request.show['workflowname'] and i.status.name=='new')"
+         tal:content="structure python:i.workflowname.menu(additional=['name']) or default">&nbsp;</td>
+     <td tal:condition="python: request.show['workflowname'] and i.status.name!='new'"
+         tal:content="python:i.workflowname.name or default">&nbsp;</td>
+     <td tal:condition="request/show/status"
+         tal:content="python:i.status or default">&nbsp;</td>
+     <td tal:condition="python:request.show['actions'] and i.status.name=='new'">
       <input name="@csrf" type="hidden" tal:attributes="value python:utils.anti_csrf_nonce()">
       <input type="hidden" name="@action" value="launchproject" >
       <input type="hidden" name="projectid" tal:attributes="value i/id" >
       <tal:block replace="structure request/indexargs_form" />
       <input type="submit" value="Launch Project" i18n:attributes="value">
-     </form>
-   </td>
+     </td>
+     <td tal:condition="python:request.show['actions'] and i.status.name!='new'"></td>
+
+   </form>
   </tr>
 
  </tal:block>

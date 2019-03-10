@@ -63,9 +63,6 @@ status_notresolved string:-1,1,2,3,4,5,6,7;
    <p class="classblock"
        tal:condition="python:request.user.hasPermission('View', 'issue')">
     <b i18n:translate="">Tasks</b><br>
-    <span tal:condition="python:request.user.hasPermission('Create', 'issue')">
-      <a href="issue?@template=item" i18n:translate="">Create New</a><br>
-    </span>
     <a href="#"
        tal:attributes="href python:request.indexargs_url('issue', {
       '@sort': '-activity',

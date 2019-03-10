@@ -42,7 +42,7 @@
 <p class="classblock">
  <table class="classblock">
   <tr>
-   <th>Client:</th> <td tal:content="context/order/partner"></td>
+   <th>Client:</th> <td tal:content="python:context.order.partner or default"> - </td>
    <th>Series:</th> <td tal:content="python:context.episode.series.title or default"> - </td>
    <th>Episode:</th> <td tal:content="python: context.episode.order.plain() + '. '+ context.episode.title.plain()"></td>
    <th>Duration:</th> <td tal:content="context/episode/duration"></td>
@@ -64,6 +64,8 @@
  <td tal:content="structure python:context.workflowname.menu(additional=['name'])">workflow menu</td>
  <th i18n:translate="">Status:</th>
  <td tal:content="structure python:context.status.menu(additional=['name'])">workflow menu</td>
+ <th i18n:translate="">Order:</th>
+ <td tal:content="structure python:context.order.menu(additional=['orderid'])">workflow menu</td>
 </tr>
 
 <tr tal:condition="context/is_edit_ok">
@@ -113,7 +115,7 @@
  by <b tal:content="context/actor" i18n:name="actor" />.
 </p>
 
-<table class="files" tal:define="tasks python:[t for t in db.issue.filter(filterspec={'project':context.id})]" >
+<table tal:condition="context/id" class="files" tal:define="tasks python:[t for t in db.issue.filter(filterspec={'project':context.id})]" >
  <tr>
    <th colspan="5" class="header" i18n:translate="">Tasks</th>
    <td>

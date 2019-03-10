@@ -151,7 +151,6 @@ project = IssueClass(db,"project",
                     projecttype=Link("projecttype"),
                     workflowname=Link("workflowname"))
 
-
 workflow=Class(db,"workflow",
                 workflowname=Link("workflowname"),
                 trg_type=Link("tasktype"),

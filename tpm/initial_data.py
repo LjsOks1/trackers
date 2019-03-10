@@ -69,9 +69,9 @@ episode.create(title="Crazy Handful of Nothin'",series="1",duration=90,order=6,s
 episode.create(title="A No-Rough-Stuff-Type Deal",series="1",duration=90,order=7,status='1',priority='4')
 
 project=db.getclass("project")
-project.create(episode="1",language="CR",projecttype="SUB",supplier="4")
-project.create(episode="1",language="HU",projecttype="DUB",supplier="4")
-project.create(episode="1",language="CZ",projecttype="DUB",supplier="4")
+project.create(episode="1",language="CR",projecttype="SUB",supplier="4",status='new')
+project.create(episode="1",language="HU",projecttype="DUB",supplier="4",status='new')
+project.create(episode="1",language="CZ",projecttype="DUB",supplier="4",status='new')
 
 tasktype=db.getclass("tasktype")
 tasktype.create(name="Collect source files",shortname="csf")
